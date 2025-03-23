@@ -12,3 +12,4 @@
 # Сервисы
 
 [Figma](https://www.figma.com/design/dUHhGwhEmFBRIUlClh8XHL/Rentplace?node-id=0-1&t=1RZol45soexWSl4u-1)
+[Схема API (Swagger)](https://petstore.swagger.io/?url=https://rawcdn.githack.com/TP-RENTPLACE/RENTPLACE/d698b6c46daf2621162913fd528c2f467f4cd529/%D0%A1%D1%85%D0%B5%D0%BC%D0%B0%20API/rentplace-openapi.yaml)
