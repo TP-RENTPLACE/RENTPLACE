@@ -1,0 +1,1419 @@
+openapi: 3.0.4
+info:
+  title: rentplace - OpenAPI 3.0
+  description: API for RentPlace service
+  contact:
+    name: Kattsyn Vladimir
+  version: 1.0.0
+servers:
+  - url: https://rentplace.online/api/v1
+tags:
+  - name: Аутентификация
+  - name: AI
+  - name: Пользователи
+  - name: Имущество
+  - name: Брони
+  - name: Категории
+  - name: Удобства
+paths:
+  /request-code:
+    post:
+      tags:
+      - Аутентификация
+      summary: Запросить код для аутентификации
+      description: "Если пользователь уже входил по этой почте, то авторизует его, иначе создаст ему новый профиль"
+      operationId: requestCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmailCodeRequest"
+        required: true
+      responses:
+        "200":
+          description: Код отправлен    
+        "500":
+          description: Непредвиденная ошибка со стороны сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+                
+  /auth:
+    post:
+      tags:
+      - Аутентификация
+      summary: Входит в систему, либо регистрирует пользователя
+      description: "Если пользователь уже входил по этой почте, то авторизует его, иначе создаст ему новый профиль"
+      operationId: authUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JwtRequest"
+        required: true
+        
+      responses:
+        "200":
+          description: Авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+        "201":
+          description: Аккаунт создан и пользователь авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JwtResponse'     
+        "401":
+          description: Не авторизован, возможно неправильный код
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'   
+  /logout:
+    post:
+      tags:
+      - Аутентификация
+      summary: Выход из системы
+      description: "Выход из системы"
+      operationId: authLogout
+      responses:
+        "200":
+          description: Успешно вышел из системы
+  /ai/generate-description:        
+    post:
+      tags:
+        - AI
+      summary: Создать описание имущества с помощью AI.
+      description: Сгенерировать описание на основе данных, записанных в Property.
+      operationId: generateDescriptionByAI
+      
+      requestBody:
+        description: Сгенерировать описание
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DescriptionGenerationRequest'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescriptionGenerationResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/DescriptionGenerationResponse'
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []        
+          
+  /properties/{id}:
+    patch:
+      tags:
+        - Имущество
+      summary: Изменить существующее имущество.
+      description: Изменить существующее имущество по id.
+      operationId: updatePropertyById
+      parameters:
+      - name: id
+        in: path
+        description: ID имущества
+        required: true
+        schema:
+          type: integer
+          format: int64
+      
+      requestBody:
+        description: Изменить данные о существующем имуществе по id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropertyDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Имущество не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+      
+    get:
+      tags:
+        - Имущество
+      summary: Получить существующее имущество.
+      description: Получить существующее имущество по id.
+      operationId: getPropertyById
+      parameters:
+      - name: id
+        in: path
+        description: ID имущества
+        required: true
+        schema:
+          type: integer
+          format: int64
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Имущество не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+    delete:
+      tags:
+        - Имущество
+      summary: Удалить существующее имущество.
+      description: Удалить существующее имущество по id.
+      operationId: deletePropertyById
+      parameters:
+      - name: id
+        in: path
+        description: ID имущества
+        required: true
+        schema:
+          type: integer
+          format: int64
+      
+      responses:
+        '200':
+          description: Успешная операция
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Имущество не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+  /properties/:  
+    get:
+      tags:
+        - Имущество
+      summary: Получить все записи имуществ.
+      description: Получить все записи имуществ.
+      operationId: getProperties
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+    post:
+      tags:
+        - Имущество
+      summary: Создать новое имущество.
+      description: Создать новое имущество.
+      operationId: createProperty
+      
+      requestBody:
+        description: Создать имущество
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropertyDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Property'
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+      
+  /reservations/{id}:
+    patch:
+      tags:
+        - Брони
+      summary: Изменить существующую бронь.
+      description: Изменить существующую бронь по id. Для админов.
+      operationId: updateReservationById
+      parameters:
+      - name: id
+        in: path
+        description: ID брони
+        required: true
+        schema:
+          type: integer
+          format: int64
+      
+      requestBody:
+        description: Изменить данные о существующей брони
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Имущество не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+      
+    get:
+      tags:
+        - Брони
+      summary: Получить существующую бронь.
+      description: Получить существующую бронь по id.
+      operationId: getReservationById
+      parameters:
+      - name: id
+        in: path
+        description: ID брони
+        required: true
+        schema:
+          type: integer
+          format: int64
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Бронь не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+    delete:
+      tags:
+        - Брони
+      summary: Удалить существующую бронь.
+      description: Удалить существующую бронь по id.
+      operationId: deleteReservationById
+      parameters:
+      - name: id
+        in: path
+        description: ID брони
+        required: true
+        schema:
+          type: integer
+          format: int64
+      
+      responses:
+        '200':
+          description: Успешная операция
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Бронь не найдена
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+  /reservations/:  
+    get:
+      tags:
+        - Брони
+      summary: Получить все брони.
+      description: Получить все брони.
+      operationId: getReservations
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reservation'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+    post:
+      tags:
+        - Брони
+      summary: Создать новую бронь.
+      description: Создать новую бронь.
+      operationId: createReservation
+      
+      requestBody:
+        description: Создать бронь
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Reservation'
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []      
+      
+  /users/{id}:
+    patch:
+      tags:
+        - Пользователи
+      summary: Изменить существующего пользователя.
+      description: Изменить существующего пользователя по id.
+      operationId: updateUserById
+      parameters:
+      - name: id
+        in: path
+        description: ID пользователя
+        required: true
+        schema:
+          type: integer
+          format: int64
+      
+      requestBody:
+        description: Изменить данные о существующем пользователе по id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+      
+    get:
+      tags:
+        - Пользователи
+      summary: Получить существующего пользователя.
+      description: Получить существующего пользователя по id.
+      operationId: getUserById
+      parameters:
+      - name: id
+        in: path
+        description: ID имущества
+        required: true
+        schema:
+          type: integer
+          format: int64
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+    delete:
+      tags:
+        - Пользователи
+      summary: Удалить существующего пользователя.
+      description: Удалить существующего пользователя по id.
+      operationId: deleteUserById
+      parameters:
+      - name: id
+        in: path
+        description: ID пользователя
+        required: true
+        schema:
+          type: integer
+          format: int64
+      
+      responses:
+        '200':
+          description: Успешная операция
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+  /users/:  
+    get:
+      tags:
+        - Пользователи
+      summary: Получить всех пользователей.
+      description: Получить всех пользователей.
+      operationId: getUsers
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+    post:
+      tags:
+        - Пользователи
+      summary: Создать нового пользователя.
+      description: Создать нового пользователя. Для админки.
+      operationId: createUser
+      requestBody:
+        description: Создать пользователя
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/User'
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+      
+      
+  /categories/{id}:
+    get:
+      tags:
+        - Категории
+      summary: Получить существующую категорию.
+      description: Получить существующую категорию по id.
+      operationId: getCategoryById
+      parameters:
+      - name: id
+        in: path
+        description: ID категории
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Категория не найдена
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+    delete:
+      tags:
+        - Категории
+      summary: Удалить существующую категорию.
+      description: Удалить существующую категорию по id.
+      operationId: deleteCategoryById
+      parameters:
+      - name: id
+        in: path
+        description: ID категории
+        required: true
+        schema:
+          type: integer
+          format: int32
+      
+      responses:
+        '200':
+          description: Успешная операция
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Категория не найдена
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+  /categories/:  
+    get:
+      tags:
+        - Категории
+      summary: Получить все категории.
+      description: Получить все категории.
+      operationId: getCategories
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+    post:
+      tags:
+        - Категории
+      summary: Создать новую категорию.
+      description: Создать новую категорию.
+      operationId: createCategory
+      requestBody:
+        description: Создать категорию
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDTO'
+        required: true
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []     
+      
+      
+  /facilities/{id}:
+    get:
+      tags:
+        - Удобства
+      summary: Получить существующее удобство.
+      description: Получить существующее удобство по id.
+      operationId: getFacilityById
+      parameters:
+      - name: id
+        in: path
+        description: ID удобства
+        required: true
+        schema:
+          type: integer
+          format: int32
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facility'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Facility'
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+      
+    delete:
+      tags:
+        - Удобства
+      summary: Удалить существующее удобство.
+      description: Удалить существующее удобство по id.
+      operationId: deleteFacilityById
+      parameters:
+      - name: id
+        in: path
+        description: ID удобства
+        required: true
+        schema:
+          type: integer
+          format: int32
+      
+      responses:
+        '200':
+          description: Успешная операция
+        '400':
+          description: Получен некорректный ID
+        '403':
+          description: Отказано в доступе (недостаточно прав)
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []  
+  /facilities/:  
+    get:
+      tags:
+        - Удобства
+      summary: Получить все удобства.
+      description: Получить все удобства.
+      operationId: getFacilities
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Facility'
+            application/xml:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Facility'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []
+    post:
+      tags:
+        - Удобства
+      summary: Создать новое удобство.
+      description: Создать новое удобство.
+      operationId: createFacility
+      requestBody:
+        description: Создать удобство
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacilityDTO'
+        required: true
+        
+      responses:
+        '200':
+          description: Успешная операция
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facility'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Facility'
+        '422':
+          description: Ошибка валидации
+        default:
+          description: Непредвиденная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      security:
+      - JWT: []     
+  
+components:
+  schemas:
+    Property:
+      type: object
+      properties:
+        propertyId:
+          type: integer
+          format: int64
+          example: 1
+        ownerId:
+          type: integer
+          format: int64
+          example: 2
+          description: id владельца имущества
+        address:
+          type: string
+          example: г. Воронеж, ул. Моисеева, д.12, кв. 94
+        description:
+          type: string
+          example: Уютная квартира в центре города
+        rating:
+          type: number
+          format: float
+          description: Вещественное число от 0 до 5
+          example: 2.4  
+        costPerDay:
+          type: integer
+          format: int32
+          example: 5400
+          description: Стоимость аренды жилья за день
+        area:
+          type: number
+          format: float
+          example: 20.52
+          description: Площадь сдаваемой территории
+        bedrooms:
+          type: integer
+          format: int32
+          example: 5
+          description: Кол-во спален
+        sleepingPlaces:
+          type: integer
+          format: int32
+          example: 10
+          description: Кол-во спальных мест
+        bathrooms:
+          type: integer
+          format: int32
+          example: 2
+          description: Кол-во санузлов
+        maxGuests:
+          type: integer
+          format: int32
+          example: 14
+          description: Макс кол-во гостей
+        facilities:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Facility"
+        categories:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Category"
+        reservations:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Reservation"
+        images:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Image"    
+    PropertyDTO:
+      type: object
+      properties:
+        ownerId:
+          type: integer
+          format: int64
+          example: 2
+          description: id владельца имущества
+        address:
+          type: string
+          example: г. Воронеж, ул. Моисеева, д.12, кв. 94
+        description:
+          type: string
+          example: Уютная квартира в центре города
+        rating:
+          type: number
+          format: float
+          description: Вещественное число от 0 до 5
+          example: 2.4  
+        costPerDay:
+          type: integer
+          format: int32
+          example: 5400
+          description: Стоимость аренды жилья за день
+        area:
+          type: number
+          format: float
+          example: 20.52
+          description: Площадь сдаваемой территории
+        bedrooms:
+          type: integer
+          format: int32
+          example: 5
+          description: Кол-во спален
+        sleepingPlaces:
+          type: integer
+          format: int32
+          example: 10
+          description: Кол-во спальных мест
+        bathrooms:
+          type: integer
+          format: int32
+          example: 2
+          description: Кол-во санузлов
+        maxGuests:
+          type: integer
+          format: int32
+          example: 14
+          description: Макс кол-во гостей   
+        facilities:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Facility"
+        categories:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Category"
+        reservations:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Reservation"
+        images:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Image"  
+      xml:
+        name: propertyDTO
+    User:
+      type: object
+      properties:
+        userId:
+          type: integer
+          format: int64
+          example: 1
+        image:
+          $ref: '#/components/schemas/Image' 
+        name:
+          type: string
+          example: Иван
+        surname:
+          type: string
+          example: Иванов
+        birthDate:
+          type: string
+          format: date
+          example: 2001.05.23
+        registrationDate:
+          type: string
+          format: date
+          example: 2024.06.12
+        email:
+          type: string
+          format: email
+          example: ivanivanov@gmail.com 
+        reservations:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Reservation"
+        favourites:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Property"
+        properties:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Property"
+      xml:
+        name: user
+    UserDTO:
+      type: object
+      properties:
+        image:
+          $ref: '#/components/schemas/Image' 
+        name:
+          type: string
+          example: Иван
+        surname:
+          type: string
+          example: Иванов
+        birthDate:
+          type: string
+          format: date
+          example: 2001.05.23
+        registrationDate:
+          type: string
+          format: date
+          example: 2024.06.12
+        email:
+          type: string
+          format: email
+          example: ivanivanov@gmail.com 
+        reservations:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Reservation"
+        favourites:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Property"
+        properties:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            $ref: "#/components/schemas/Property"
+      xml:
+        name: user    
+        
+    Category:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int32
+        name:
+          type: string
+      xml:
+        name: category
+        
+    CategoryDTO:
+      type: object
+      properties:
+        name:
+          type: string
+      xml:
+        name: categoryDTO    
+    Facility:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int32
+        image:
+          $ref: '#/components/schemas/Image'
+        name:
+          type: string
+      xml:
+        name: facility
+        
+    FacilityDTO:
+      type: object
+      properties:
+        image:
+          $ref: '#/components/schemas/Image'
+        name:
+          type: string
+      xml:
+        name: facilityDTO
+        
+    Reservation:
+      required:
+        - property
+        - reservator
+        - startDate
+        - endDate
+      type: object
+      properties:
+        reservationId:
+          type: integer
+          format: int64
+          example: 10
+        property:
+          $ref: '#/components/schemas/Property'
+        reservator:
+          $ref: '#/components/schemas/User'
+        startDate:
+          type: string
+          format: date
+          example: 2024.05.23
+        endDate:
+          type: string
+          format: date
+          example: 2001.06.6
+        cost:
+          type: integer
+          format: int32
+          example: 34000
+      xml:
+        name: reservation   
+        
+    ReservationDTO:
+      required:
+        - property
+        - reservator
+        - startDate
+        - endDate
+      type: object
+      properties:
+        property:
+          $ref: '#/components/schemas/Property'
+        reservator:
+          $ref: '#/components/schemas/User'
+        startDate:
+          type: string
+          format: date
+          example: 2024.05.23
+        endDate:
+          type: string
+          format: date
+          example: 2001.06.6
+        cost:
+          type: integer
+          format: int32
+          example: 34000
+      xml:
+        name: reservation 
+        
+    Image:
+      type: object
+      properties:
+        imageId:
+          type: integer
+          format: int64
+          example: 10
+        size:
+          type: integer
+          format: int64
+          example: 12312412
+        originalFileName:
+          type: string
+          example: appartmentPhoto1
+        isPreviewImage:
+          type: boolean
+          example: true
+        bytes:
+          type: array
+          xml:
+            wrapped: true
+          items:
+            type: integer
+            format: int8
+      xml:
+        name: image  
+    DescriptionGenerationRequest:
+      type: object
+      properties:
+        property:
+          $ref: '#/components/schemas/Property'  
+    DescriptionGenerationResponse:
+      type: object
+      properties:
+        description:
+          type: string
+          format: text
+          example: Сдается большой дом на берегу моря. Можно расположить до 12ти гостей...
+    EmailCodeRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: ivanivanov@gmail.com
+    JwtRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: ivanivanov@gmail.com
+        code:
+          type: integer
+          format: int32
+          example: 42562
+    JwtResponse:
+      type: object
+      properties:
+        bearer:
+          type: string
+          format: bearer token
+          example: Bearer mytoken123
+        code:
+          type: integer
+          format: int32
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
