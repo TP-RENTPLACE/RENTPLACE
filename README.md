@@ -1,4 +1,4 @@
-# Сервис для поиска и аренды частного жилья «Rentplace»
+## Rentplace Сервис для поиска и аренды частного жилья
 
 #### Выполняют студенты: ####
 * [Загороднев Георгий](https://github.com/f1ar3) - Team lead, PM, Дизайнер
@@ -37,9 +37,9 @@
 [Чек-лист 1 этап]()
 
 #### Нас оценивали
-* Команда 3.3 [Git](https://github.com/qudest/voyago) [Чек-лист]() 
-* Команда 1.4 [Git](https://github.com/Dodger0072/Programming-technologies-project) [Чек-лист]() 
-* Команда 1.2 [Git](https://github.com/progerg/Lawly) [Чек-лист]() 
-* Команда 5.3 [Git](https://github.com/TrefflyTeam) [Чек-лист]() 
+* Команда 3.3 [Git](https://github.com/qudest/voyago) [Чек-лист](https://github.com/qudest/voyago/blob/main/Documentation/Check-list.pdf) 
+* Команда 1.4 [Git](https://github.com/Dodger0072/Programming-technologies-project) [Чек-лист](https://github.com/Dodger0072/Programming-technologies-project/blob/main/docs/%D0%A7%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82%D1%8B/%D0%A7%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82.pdf) 
+* Команда 1.2 [Git](https://github.com/progerg/Lawly) [Чек-лист](https://docs.google.com/spreadsheets/d/1N2VNP7KQ8e5stoPP6Exh-BIzoYfDbmXog0uCsfQPa2w/edit?gid=116236438#gid=116236438) 
+* Команда 5.3 [Git](https://github.com/TrefflyTeam) [Чек-лист](https://github.com/TrefflyTeam/documentation/blob/main/%D0%A0%D0%B5%D0%B7%D1%83%D0%BB%D1%8C%D1%82%D0%B0%D1%82%D1%8B%20%D0%BE%D1%86%D0%B5%D0%BD%D0%B8%D0%B2%D0%B0%D0%BD%D0%B8%D1%8F%20%D0%BE%D1%82%20%D0%BA%D0%BE%D0%BC%D0%B0%D0%BD%D0%B4%D1%8B%205.3.pdf) 
 
 
