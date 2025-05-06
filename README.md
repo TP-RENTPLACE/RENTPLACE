@@ -44,7 +44,7 @@
 ## Видеопрезентации проекта
 
 [Видеопрезентация технического задания](https://rutube.ru/video/private/e9ebf072a28581afc9b4ba459621c266/?p=vmGAE0-uPR63pJbbJBGUtA) \
-[Видеопрезентация MVP](https://rutube.ru/video/private/e9ebf072a28581afc9b4ba459621c266/?p=vmGAE0-uPR63pJbbJBGUtA) 
+[Видеопрезентация MVP](https://rutube.ru/video/private/70d050f3ac786d01f23c3b80fcdeb096/?p=i2flApMTv916Ig_E-mz1IQ) 
 
 ## Чек-листы
 [Чек-лист 1 этап](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%A7%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82%201%20%D1%8D%D1%82%D0%B0%D0%BF.pdf)
