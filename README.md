@@ -9,7 +9,7 @@
 * [Беликов Илья](https://github.com/belikov3k) - QA-инженер
 
 ## Rentplace
-[Client (PWA)](http://rentplace.online/)
+[Client (PWA)](http://rentplace.online/) \
 [Admin-panel (Web)](http://admin.rentplace.online/)
 
 ## Сервисы
