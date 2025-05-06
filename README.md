@@ -8,7 +8,7 @@
 * [Исанбаев Илья](https://github.com/ilisanbaev04) - Frontend разработчик
 * [Беликов Илья](https://github.com/belikov3k) - QA-инженер
 
-##Rentplace
+## Rentplace
 [Client (PWA)](http://rentplace.online/)
 [Admin-panel (Web)](http://admin.rentplace.online/)
 
