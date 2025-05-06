@@ -60,10 +60,10 @@
 
 [Чек-лист 2 этап](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%A7%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82%202%20%D1%8D%D1%82%D0%B0%D0%BF.pdf)
 #### Нас оценивали
-* Команда 3.3 [Git](https://github.com/qudest/voyago) [Чек-лист](https://github.com/qudest/voyago/blob/main/Documentation/Check-list.pdf) 
+* Команда 3.3 [Git](https://github.com/qudest/voyago) [Чек-лист](https://github.com/qudest/voyago/blob/main/Documentation/check-list-2.pdf) 
 * Команда 1.4 [Git](https://github.com/Dodger0072/Programming-technologies-project) [Чек-лист](https://github.com/Dodger0072/Programming-technologies-project/blob/main/docs/%D0%A7%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82%D1%8B/%D0%A7%D0%B5%D0%BA-%D0%BB%D0%B8%D1%81%D1%82.pdf) 
 * Команда 1.2 [Git](https://github.com/progerg/Lawly) [Чек-лист](https://github.com/progerg/Lawly/blob/master/documentation/checklist-2.pdf) 
-* Команда 5.4 [Git](https://github.com/TP-Jobsy) [Чек-лист](https://github.com/TP-Jobsy/jobsy-docs/blob/main/checklist/%D0%A7%D0%B5%D0%BA%D0%BB%D0%B8%D1%81%D1%82%201%20%D1%8D%D1%82%D0%B0%D0%BF.pdf) 
+* Команда 5.4 [Git](https://github.com/TP-Jobsy) [Чек-лист](https://github.com/TP-Jobsy/jobsy-docs/blob/main/checklist/%D0%A7%D0%B5%D0%BA%D0%BB%D0%B8%D1%81%D1%82%202%20%D1%8D%D1%82%D0%B0%D0%BF.pdf) 
 
 
 
