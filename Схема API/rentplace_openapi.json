@@ -11,7 +11,7 @@
   },
   "servers": [
     {
-      "url": "http://rentplace.online",
+      "url": "http://localhost:8080",
       "description": "Generated server url"
     }
   ],
@@ -51,6 +51,10 @@
     {
       "name": "FacilityController",
       "description": "Для взаимодействия с удобствами"
+    },
+    {
+      "name": "UserAdminController",
+      "description": "Для взаимодействия с пользователями из админ-панели"
     }
   ],
   "paths": {
@@ -209,7 +213,12 @@
           "500": {
             "description": "Непредвиденная ошибка со стороны сервера"
           }
-        }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -896,6 +905,38 @@
         }
       }
     },
+    "/api/v1/auth/admin/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Запрос на авторизацию в админ-панель",
+        "description": "Получает email и код с почты. Возвращает JWT токены. Пускает только администраторов.",
+        "operationId": "adminLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JwtRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/JwtResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/ai/description": {
       "post": {
         "tags": [
@@ -992,96 +1033,6 @@
         ]
       }
     },
-    "/favourites/remove/{id}": {
-      "patch": {
-        "tags": [
-          "FavouritesController"
-        ],
-        "summary": "Удалить объявление из избранного",
-        "operationId": "removePropertyFromFavourites",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Успешно. Без тела ответа"
-          },
-          "400": {
-            "description": "Получен некорректный ID"
-          },
-          "401": {
-            "description": "Не авторизован"
-          },
-          "404": {
-            "description": "Объявление не найдено"
-          },
-          "422": {
-            "description": "Ошибка валидации"
-          },
-          "500": {
-            "description": "Непредвиденная ошибка со стороны сервера"
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
-    "/favourites/add/{id}": {
-      "patch": {
-        "tags": [
-          "FavouritesController"
-        ],
-        "summary": "Добавить объявление в избранное",
-        "operationId": "addPropertyToFavourites",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Успешно. Без тела ответа"
-          },
-          "400": {
-            "description": "Получен некорректный ID"
-          },
-          "401": {
-            "description": "Не авторизован"
-          },
-          "404": {
-            "description": "Объявление не найдено"
-          },
-          "422": {
-            "description": "Ошибка валидации"
-          },
-          "500": {
-            "description": "Непредвиденная ошибка со стороны сервера"
-          }
-        },
-        "security": [
-          {
-            "JWT": []
-          }
-        ]
-      }
-    },
     "/api/v1/users/{id}": {
       "get": {
         "tags": [
@@ -1133,7 +1084,7 @@
           "UserController"
         ],
         "summary": "Удалить пользователя",
-        "description": "Удалить пользователя по ID",
+        "description": "Удалить пользователя по ID. Использовать в крайних случаях. При удалении удаляются все его брони и объявления.",
         "operationId": "deleteUser",
         "parameters": [
           {
@@ -1577,6 +1528,96 @@
         ]
       }
     },
+    "/api/v1/favourites/remove/{id}": {
+      "patch": {
+        "tags": [
+          "FavouritesController"
+        ],
+        "summary": "Удалить объявление из избранного",
+        "operationId": "removePropertyFromFavourites",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешно. Без тела ответа"
+          },
+          "400": {
+            "description": "Получен некорректный ID"
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "404": {
+            "description": "Объявление не найдено"
+          },
+          "422": {
+            "description": "Ошибка валидации"
+          },
+          "500": {
+            "description": "Непредвиденная ошибка со стороны сервера"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/favourites/add/{id}": {
+      "patch": {
+        "tags": [
+          "FavouritesController"
+        ],
+        "summary": "Добавить объявление в избранное",
+        "operationId": "addPropertyToFavourites",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешно. Без тела ответа"
+          },
+          "400": {
+            "description": "Получен некорректный ID"
+          },
+          "401": {
+            "description": "Не авторизован"
+          },
+          "404": {
+            "description": "Объявление не найдено"
+          },
+          "422": {
+            "description": "Ошибка валидации"
+          },
+          "500": {
+            "description": "Непредвиденная ошибка со стороны сервера"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/v1/facilities/{id}": {
       "get": {
         "tags": [
@@ -1869,27 +1910,120 @@
         ]
       }
     },
-    "/favourites/": {
+    "/api/v1/users/admin/deactivate-user/{id}": {
       "get": {
         "tags": [
-          "FavouritesController"
+          "UserAdminController"
         ],
-        "summary": "Получение избранных объявлений пользователем",
-        "description": "Метод, для получения избранных объявлений пользователем. Для авторизованных",
-        "operationId": "findAll_3",
+        "summary": "Заблокировать пользователя",
+        "description": "Заблокировать пользователя по ID. В случае нарушений правил пользования сервисом.",
+        "operationId": "deactivateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id пользователя",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
         "responses": {
-          "200": {
-            "description": "Успешно",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PropertyDTO"
-                  }
-                }
-              }
-            }
+          "204": {
+            "description": "Успешно. Пустой ответ"
+          },
+          "400": {
+            "description": "Получен некорректный ID"
+          },
+          "404": {
+            "description": "Пользователь не найден"
+          },
+          "500": {
+            "description": "Непредвиденная ошибка со стороны сервера"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/admin/block-user/{id}": {
+      "get": {
+        "tags": [
+          "UserAdminController"
+        ],
+        "summary": "Заблокировать пользователя",
+        "description": "Заблокировать пользователя по ID. В случае нарушений правил пользования сервисом.",
+        "operationId": "blockUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id пользователя",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешно. Пустой ответ"
+          },
+          "400": {
+            "description": "Получен некорректный ID"
+          },
+          "404": {
+            "description": "Пользователь не найден"
+          },
+          "500": {
+            "description": "Непредвиденная ошибка со стороны сервера"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/admin/activate-user/{id}": {
+      "get": {
+        "tags": [
+          "UserAdminController"
+        ],
+        "summary": "Разблокировать/активировать пользователя",
+        "description": "Разблокировать/активировать пользователя по ID. В случае снятия блокировки или если пользователь захочет разблокировать свой профиль.",
+        "operationId": "activateUser",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id пользователя",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешно. Пустой ответ"
+          },
+          "400": {
+            "description": "Получен некорректный ID"
+          },
+          "404": {
+            "description": "Пользователь не найден"
           },
           "500": {
             "description": "Непредвиденная ошибка со стороны сервера"
@@ -2095,6 +2229,39 @@
         }
       }
     },
+    "/api/v1/favourites/": {
+      "get": {
+        "tags": [
+          "FavouritesController"
+        ],
+        "summary": "Получение избранных объявлений пользователем",
+        "description": "Метод, для получения избранных объявлений пользователем. Для авторизованных",
+        "operationId": "findAll_3",
+        "responses": {
+          "200": {
+            "description": "Успешно",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PropertyDTO"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Непредвиденная ошибка со стороны сервера"
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
     "/api/v1/auth/info": {
       "get": {
         "tags": [
@@ -2113,6 +2280,51 @@
                 }
               }
             }
+          }
+        },
+        "security": [
+          {
+            "JWT": []
+          }
+        ]
+      }
+    },
+    "/api/v1/users/admin/{id}": {
+      "delete": {
+        "tags": [
+          "UserAdminController"
+        ],
+        "summary": "Удалить пользователя",
+        "description": "Удалить пользователя по ID. Использовать в крайних случаях. При удалении удаляются все его брони и объявления.",
+        "operationId": "deleteUser_1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id пользователя",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Успешно. Пустой ответ"
+          },
+          "400": {
+            "description": "Получен некорректный ID"
+          },
+          "404": {
+            "description": "Пользователь не найден"
+          },
+          "422": {
+            "description": "Ошибка валидации"
+          },
+          "500": {
+            "description": "Непредвиденная ошибка со стороны сервера"
           }
         },
         "security": [
@@ -2257,6 +2469,15 @@
             "enum": [
               "MALE",
               "FEMALE"
+            ]
+          },
+          "userStatus": {
+            "type": "string",
+            "description": "Статус профиля пользователя. STATUS_BLOCKED, STATUS_ACTIVE или STATUS_INACTIVE",
+            "enum": [
+              "STATUS_ACTIVE",
+              "STATUS_INACTIVE",
+              "STATUS_BLOCKED"
             ]
           },
           "role": {
@@ -2871,6 +3092,15 @@
             "enum": [
               "AUTH_LOGIN",
               "AUTH_REGISTER"
+            ]
+          },
+          "userStatus": {
+            "type": "string",
+            "description": "Статус профиля пользователя. STATUS_BLOCKED, STATUS_ACTIVE, STATUS_INACTIVE",
+            "enum": [
+              "STATUS_ACTIVE",
+              "STATUS_INACTIVE",
+              "STATUS_BLOCKED"
             ]
           }
         }
