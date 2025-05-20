@@ -1,0 +1,2096 @@
+openapi: 3.0.0
+info:
+  title: rentplace API
+  description: rentplace
+  contact:
+    name: Kattsyn Vladimir
+    email: warshard1337@gmail.com
+  version: 1.0.0
+servers:
+  - url: https://rentplace.online
+    description: Generated server url
+tags:
+  - name: AI Controller
+    description: Интеграция с OpenRouter для работы с LLM моделями
+  - name: Authentication
+    description: Для аутентификации, регистрации, обновлении и запроса токенов и отправки запросов кода на почту.
+  - name: CategoryController
+    description: Для взаимодействия с категориями
+  - name: FacilityController
+    description: Для взаимодействия с удобствами
+  - name: FavouritesController
+    description: Контроллер для работы с избранными объявлениями пользователя
+  - name: ImageController
+    description: Для взаимодействия с фотографиями
+  - name: Property Controller
+    description: Взаимодействие с имуществом  
+  - name: Reservation Controller
+    description: Взаимодействие с бронированиями
+  - name: UserAdminController
+    description: Для взаимодействия с пользователями из админ-панели
+  - name: UserController
+    description: Для взаимодействия с пользователями
+
+paths:
+  /api/v1/users/{id}/image:
+    post:
+      tags:
+        - UserController
+      summary: Загрузка фотографии для пользователя
+      description: Загрузка фотографии для пользователя. Размер фотографии до 5Мб
+      operationId: uploadImage
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Файл фотографии
+              required:
+                - file
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/users/:
+    get:
+      tags:
+        - UserController
+      summary: Получение всех пользователей
+      description: Получение всех пользователей
+      operationId: findAll
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    post:
+      tags:
+        - UserController
+      summary: Создать пользователя с аватаркой
+      description: Создать пользователя с аватаркой
+      operationId: createUser
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreateEditDTO'
+      responses:
+        '201':
+          description: Успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/reservations/:
+    get:
+      tags:
+        - Reservation Controller
+      summary: Получение всех бронирований
+      description: Позволяет получить все бронирования
+      operationId: getReservations
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    post:
+      tags:
+        - Reservation Controller
+      summary: Создать бронирование
+      description: Создать бронирование
+      operationId: createReservation
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateEditDTO'
+      responses:
+        '201':
+          description: Успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDTO'
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/properties/{id}/images:
+    post:
+      tags:
+        - Property Controller
+      summary: Массовая загрузка фотографий
+      description: Загружает несколько фотографий за один запрос. Максимальное количество файлов - 20. Максимальный размер каждого файла - 5MB.
+      operationId: uploadMultipleImages
+      parameters:
+        - name: id
+          in: path
+          description: id объявления
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  description: Массив файлов фотографий
+                  items:
+                    type: string
+                    format: binary
+              required:
+                - files
+      responses:
+        '200':
+          description: Фотографии успешно загружены
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageDTO'
+        '400':
+          description: Некорректный запрос (превышено кол-во файлов, неверный формат и т.д.)
+        '413':
+          description: Превышен максимальный размер запроса
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageDTO'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageDTO'
+      security:
+        - JWT: []
+  /api/v1/properties/filtered/:
+    post:
+      tags:
+        - Property Controller
+      summary: Получение всех объявлений, с фильтрацией
+      description: Позволяет получить все объявления, с фильтрацией
+      operationId: getPropertiesByFilter
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PropertyFilterDTO'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+  /api/v1/properties/:
+    get:
+      tags:
+        - Property Controller
+      summary: Получение всех объявлений
+      description: Позволяет получить все объявления
+      operationId: getProperties
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    post:
+      tags:
+        - Property Controller
+      summary: Создать объявление
+      description: Создать объявление
+      operationId: createPropertyWithImage
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PropertyCreateEditDTO'
+      responses:
+        '201':
+          description: Успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDTO'
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/facilities/{id}/image:
+    post:
+      tags:
+        - FacilityController
+      summary: Загрузка фотографии для категории
+      description: Загрузка фотографии для категории
+      operationId: uploadImage_1
+      parameters:
+        - name: id
+          in: path
+          description: id категории
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Файл фотографии
+              required:
+                - file
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImageDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/facilities/:
+    get:
+      tags:
+        - FacilityController
+      summary: Получение всех удобств
+      description: Получение всех удобств
+      operationId: findAll_1
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FacilityDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    post:
+      tags:
+        - FacilityController
+      summary: Создать удобство с картинкой
+      description: Создать удобство с картинкой
+      operationId: createFacilityWithImage
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FacilityCreateEditDTO'
+      responses:
+        '201':
+          description: Успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityDTO'
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/categories/{id}/image:
+    post:
+      tags:
+        - CategoryController
+      summary: Загрузка фотографии для категории
+      description: Загрузка фотографии для категории
+      operationId: uploadImage_2
+      parameters:
+        - name: id
+          in: path
+          description: id категории
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Файл фотографии
+              required:
+                - file
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/categories/:
+    get:
+      tags:
+        - CategoryController
+      summary: Получение всех категорий
+      description: Получение всех категорий
+      operationId: findAll_2
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    post:
+      tags:
+        - CategoryController
+      summary: Создать категорию
+      description: Создать категорию
+      operationId: createCategory
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateEditDTO'
+      responses:
+        '201':
+          description: Успешно создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDTO'
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/auth/validate-code:
+    post:
+      tags:
+        - Authentication
+      summary: Проверка валидности введенного кода пользователем
+      description: Проверяет правильность введенного кода, отправленного на почту. Использовать в случае, если пользователь новый.
+      operationId: checkCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JwtRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+  /api/v1/auth/token:
+    post:
+      tags:
+        - Authentication
+      summary: Запрос на обновление AccessToken'а
+      description: Получает RefreshToken, возвращает новый AccessToken
+      operationId: getNewAccessToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshJwtRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+  /api/v1/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Запрос на регистрацию
+      description: Получает email и код с почты, а также имя и фамилию пользователя. Возвращает JWT токены
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+  /api/v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Запрос на обновление RefreshToken'а
+      description: Принимает еще не истекший RefreshToken и возвращает новый, продленный.
+      operationId: refresh
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshJwtRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Запрос на авторизацию
+      description: Получает email и код с почты. Возвращает JWT токены
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JwtRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+  /api/v1/auth/code-request:
+    post:
+      tags:
+        - Authentication
+      summary: Запросить код по почте
+      description: Запрос на получение кода авторизации по почте
+      operationId: requestCode
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CodeRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CodeResponse'
+  /api/v1/auth/admin/login:
+    post:
+      tags:
+        - Authentication
+      summary: Запрос на авторизацию в админ-панель
+      description: Получает email и код с почты. Возвращает JWT токены. Пускает только администраторов.
+      operationId: adminLogin
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JwtRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JwtResponse'
+  /api/v1/ai/description:
+    post:
+      tags:
+        - AI Controller
+      summary: Сгенерировать описание проекта
+      description: Принимает системный и пользовательский промпты, отсылает их в Open Router AI и возвращает сгенерированный текст.
+      operationId: generateDescription
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GenerateDescriptionRequest'
+      responses:
+        '200':
+          description: Сгенерированное описание получено
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+        '400':
+          description: Неверные данные запроса
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+        '401':
+          description: Неавторизованный доступ
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+        '403':
+          description: Доступ запрещён
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+        '404':
+          description: Пользователь не найден
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+        '429':
+          description: Превышен лимит AI-запросов (10 в час)
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GenerateDescriptionResponse'
+      security:
+        - JWT: []
+  /api/v1/users/{id}:
+    get:
+      tags:
+        - UserController
+      summary: Получить пользователя
+      description: Получить dto пользователя по id
+      operationId: findById
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    delete:
+      tags:
+        - UserController
+      summary: Удалить пользователя
+      description: Удалить пользователя по ID. Использовать в крайних случаях. При удалении удаляются все его брони и объявления.
+      operationId: deleteUser
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    patch:
+      tags:
+        - UserController
+      summary: Изменить пользователя
+      description: Изменить пользователя по id
+      operationId: updateUserById
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreateEditDTO'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/users/me:
+    patch:
+      tags:
+        - UserController
+      summary: Изменение данных авторизованного пользователя
+      description: Метод, для того чтобы пользователь изменил данные своего профиля
+      operationId: updateUser
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserCreateEditDTO'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/reservations/{id}:
+    get:
+      tags:
+        - Reservation Controller
+      summary: Получение бронирования
+      description: Получение бронирования по id
+      operationId: getReservation
+      parameters:
+        - name: id
+          in: path
+          description: id бронирования
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Бронирование не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    delete:
+      tags:
+        - Reservation Controller
+      operationId: deleteReservation
+      parameters:
+        - name: id
+          in: path
+          description: id бронирования
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Успешно. Возвращает удаленную сущность
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Категория не найдена
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    patch:
+      tags:
+        - Reservation Controller
+      summary: Изменить бронирование
+      description: Изменить бронирование
+      operationId: updateReservation
+      parameters:
+        - name: id
+          in: path
+          description: id бронирования для изменения
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReservationCreateEditDTO'
+      responses:
+        '201':
+          description: Успешно изменено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationDTO'
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/properties/{id}:
+    get:
+      tags:
+        - Property Controller
+      summary: Получить объявление
+      description: Получить объявление по id
+      operationId: findById_1
+      parameters:
+        - name: id
+          in: path
+          description: id объявления
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Объявление не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    delete:
+      tags:
+        - Property Controller
+      summary: Удалить объявление
+      description: Удалить объявление по id
+      operationId: deleteProperty
+      parameters:
+        - name: id
+          in: path
+          description: id объявления
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Объявление не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    patch:
+      tags:
+        - Property Controller
+      summary: Изменить объявление
+      description: Изменить объявление по id
+      operationId: updateProperty
+      parameters:
+        - name: id
+          in: path
+          description: id объявления
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PropertyCreateEditDTO'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/PropertyDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Объявление не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/favourites/remove/{id}:
+    patch:
+      tags:
+        - FavouritesController
+      summary: Удалить объявление из избранного
+      operationId: removePropertyFromFavourites
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Успешно. Без тела ответа
+        '400':
+          description: Получен некорректный ID
+        '401':
+          description: Не авторизован
+        '404':
+          description: Объявление не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/favourites/add/{id}:
+    patch:
+      tags:
+        - FavouritesController
+      summary: Добавить объявление в избранное
+      operationId: addPropertyToFavourites
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Успешно. Без тела ответа
+        '400':
+          description: Получен некорректный ID
+        '401':
+          description: Не авторизован
+        '404':
+          description: Объявление не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/facilities/{id}:
+    get:
+      tags:
+        - FacilityController
+      summary: Получить удобство
+      description: Получить удобство по id
+      operationId: findById_2
+      parameters:
+        - name: id
+          in: path
+          description: id удобства
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 2
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    delete:
+      tags:
+        - FacilityController
+      operationId: deleteFacility
+      parameters:
+        - name: id
+          in: path
+          description: id удобства
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    patch:
+      tags:
+        - FacilityController
+      summary: Изменить удобство
+      description: Изменить удобство по id
+      operationId: updateFacility
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FacilityCreateEditDTO'
+      responses:
+        '200':
+          description: Успешно
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Удобство не найдено
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/categories/{id}:
+    get:
+      tags:
+        - CategoryController
+      summary: Получение категории
+      description: Получение категории по id
+      operationId: findById_3
+      parameters:
+        - name: id
+          in: path
+          description: id категории
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Категория не найдена
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    delete:
+      tags:
+        - CategoryController
+      operationId: deleteCategory
+      parameters:
+        - name: id
+          in: path
+          description: id категории
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Возвращает удаленную сущность
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Категория не найдена
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+    patch:
+      tags:
+        - CategoryController
+      summary: Изменить категорию
+      description: Изменить категорию по id
+      operationId: updateCategory
+      parameters:
+        - name: id
+          in: path
+          description: id категории
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 10
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CategoryCreateEditDTO'
+      responses:
+        '200':
+          description: Успешно
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CategoryDTO'
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Категория не найдена
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/users/admin/deactivate-user/{id}:
+    get:
+      tags:
+        - UserAdminController
+      summary: Заблокировать пользователя
+      description: Заблокировать пользователя по ID. В случае нарушений правил пользования сервисом.
+      operationId: deactivateUser
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/users/admin/block-user/{id}:
+    get:
+      tags:
+        - UserAdminController
+      summary: Заблокировать пользователя
+      description: Заблокировать пользователя по ID. В случае нарушений правил пользования сервисом.
+      operationId: blockUser
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/users/admin/activate-user/{id}:
+    get:
+      tags:
+        - UserAdminController
+      summary: Разблокировать/активировать пользователя
+      description: Разблокировать/активировать пользователя по ID. В случае снятия блокировки или если пользователь захочет разблокировать свой профиль.
+      operationId: activateUser
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/reservations/my:
+    get:
+      tags:
+        - Reservation Controller
+      summary: Получение всех бронирований пользователя
+      description: Позволяет получить все бронирования пользователя
+      operationId: getUserReservations
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/properties/my:
+    get:
+      tags:
+        - Property Controller
+      summary: Получение объявлений пользователя
+      description: Позволяет получить все объявления пользователя по его токену. Только для авторизованных пользователей.
+      operationId: getUserProperties
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/images/{id}:
+    get:
+      tags:
+        - ImageController
+      summary: Получить фотографию
+      description: Получить фотографию по id
+      operationId: getImage
+      parameters:
+        - name: id
+          in: path
+          description: ID фотографии
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Фотография не найдена
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+    delete:
+      tags:
+        - ImageController
+      summary: Удалить фотографию
+      description: Удаляет фотографию и её метаданные
+      operationId: deleteImage
+      parameters:
+        - name: id
+          in: path
+          description: ID фотографии
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '200':
+          description: Фото успешно удалено
+        '404':
+          description: Фото не найдено
+      security:
+        - JWT: []
+  /api/v1/images/{entityType}/{entityId}/{filename}:
+    get:
+      tags:
+        - ImageController
+      operationId: getImage_1
+      parameters:
+        - name: entityType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entityId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+  /api/v1/favourites/:
+    get:
+      tags:
+        - FavouritesController
+      summary: Получение избранных объявлений пользователем
+      description: Метод, для получения избранных объявлений пользователем. Для авторизованных
+      operationId: findAll_3
+      responses:
+        '200':
+          description: Успешно
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyDTO'
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+  /api/v1/auth/info:
+    get:
+      tags:
+        - Authentication
+      summary: Получение информации о пользователе
+      description: Возвращает информацию об авторизованном пользователе
+      operationId: getUserInfo
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UserDTO'
+      security:
+        - JWT: []
+  /api/v1/users/admin/{id}:
+    delete:
+      tags:
+        - UserAdminController
+      summary: Удалить пользователя
+      description: Удалить пользователя по ID. Использовать в крайних случаях. При удалении удаляются все его брони и объявления.
+      operationId: deleteUser_1
+      parameters:
+        - name: id
+          in: path
+          description: id пользователя
+          required: true
+          schema:
+            type: integer
+            format: int64
+          example: 1
+      responses:
+        '204':
+          description: Успешно. Пустой ответ
+        '400':
+          description: Получен некорректный ID
+        '404':
+          description: Пользователь не найден
+        '422':
+          description: Ошибка валидации
+        '500':
+          description: Непредвиденная ошибка со стороны сервера
+      security:
+        - JWT: []
+components:
+  schemas:
+    Image:
+      type: object
+      properties:
+        imageId:
+          type: integer
+          format: int64
+        fileName:
+          type: string
+        url:
+          type: string
+        originalFileName:
+          type: string
+        contentType:
+          type: string
+        additionalPath:
+          type: string
+        size:
+          type: integer
+          format: int64
+        previewImage:
+          type: boolean
+    UserCreateEditDTO:
+      type: object
+      description: DTO Пользователя для создания или редактирования
+      properties:
+        name:
+          type: string
+          description: Имя пользователя
+          example: Иван
+          maxLength: 100
+          minLength: 1
+        surname:
+          type: string
+          description: Фамилия пользователя
+          example: Иванов
+          maxLength: 100
+          minLength: 1
+        gender:
+          type: string
+          description: Пол пользователя. MALE или FEMALE
+          enum:
+            - MALE
+            - FEMALE
+        role:
+          type: string
+          description: Роль пользователя. ROLE_USER или ROLE_ADMIN
+          enum:
+            - ROLE_USER
+            - ROLE_ADMIN
+        birthDate:
+          type: string
+          format: date
+          description: Дата рождения пользователя
+          example: '2004-02-22'
+        email:
+          type: string
+          description: email пользователя
+          example: ivanivanov@gmail.com
+        file:
+          type: string
+          format: binary
+          description: Аватарка пользователя, файлом
+    ImageDTO:
+      type: object
+      description: DTO Картинки
+      properties:
+        imageId:
+          type: integer
+          format: int64
+          description: ID Фотографии
+        url:
+          type: string
+          description: URL фотографии
+        previewImage:
+          type: boolean
+    UserDTO:
+      type: object
+      description: DTO Пользователя
+      properties:
+        userId:
+          type: integer
+          format: int64
+          description: ID пользователя
+          example: 1
+          minimum: 1
+        name:
+          type: string
+          description: Имя пользователя
+          example: Иван
+          maxLength: 100
+          minLength: 1
+        surname:
+          type: string
+          description: Фамилия пользователя
+          example: Иванов
+          maxLength: 100
+          minLength: 1
+        gender:
+          type: string
+          description: Пол пользователя. MALE или FEMALE
+          enum:
+            - MALE
+            - FEMALE
+        userStatus:
+          type: string
+          description: Статус профиля пользователя. STATUS_BLOCKED, STATUS_ACTIVE или STATUS_INACTIVE
+          enum:
+            - STATUS_ACTIVE
+            - STATUS_INACTIVE
+            - STATUS_BLOCKED
+        role:
+          type: string
+          description: Роль пользователя. ROLE_USER или ROLE_ADMIN
+          enum:
+            - ROLE_USER
+            - ROLE_ADMIN
+        birthDate:
+          type: string
+          format: date
+          description: Дата рождения пользователя
+          example: '2004-02-22'
+        email:
+          type: string
+          description: email пользователя
+          example: ivanivanov@gmail.com
+        imageDTO:
+          $ref: '#/components/schemas/ImageDTO'
+          description: Аватарка пользователя
+    ReservationCreateEditDTO:
+      type: object
+      properties:
+        propertyId:
+          type: integer
+          format: int64
+          description: id объявления, с которым связано бронирование
+          example: 1
+        renterId:
+          type: integer
+          format: int64
+          description: id арендатора
+          example: 1
+        startDate:
+          type: string
+          format: date
+          description: Дата начала проживания
+          example: '2025-04-22'
+        endDate:
+          type: string
+          format: date
+          description: Дата окончания проживания
+          example: '2025-05-22'
+        costInPeriod:
+          type: integer
+          format: int32
+          description: Стоимость аренды за период. Если долгосрочная аренда, то за месяц, иначе за день.
+          example: 2500
+        longTermRent:
+          type: boolean
+      required:
+        - costInPeriod
+        - endDate
+        - propertyId
+        - renterId
+        - startDate
+    CategoryDTO:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+          format: int64
+          description: ID категории
+          example: 1
+        name:
+          type: string
+          description: Название категории
+          example: Душ
+          maxLength: 50
+          minLength: 1
+        imageDTO:
+          $ref: '#/components/schemas/ImageDTO'
+          description: Лого категории
+    FacilityDTO:
+      type: object
+      properties:
+        facilityId:
+          type: integer
+          format: int64
+          description: ID удобства
+          example: 1
+        name:
+          type: string
+          description: Название удобства
+          example: Душ
+          maxLength: 50
+          minLength: 1
+        imageDTO:
+          $ref: '#/components/schemas/ImageDTO'
+          description: Лого удобства
+    PropertyDTO:
+      type: object
+      description: DTO имущества
+      properties:
+        propertyId:
+          type: integer
+          format: int64
+          description: ID имущества
+        propertyStatus:
+          type: string
+          description: |
+            Статус жилья.
+            PUBLISHED (опубликовано) - объявление доступно всем пользователям.
+            ON MODERATION (на модерации) - объявление на проверке у модерации. Видно только во вкладке "Сдать жилье" у владельца.
+            REJECTED (отклонено) - объявление не прошло модерацию, его нужно отредактировать, чтобы попробовать еще раз отправить на модерацию.
+            NOT PUBLISHED (не опубликовано) - объявление уже проходило модерацию и было опубликовано, но пользователь скрыл его.
+            Если не будет внесено изменений, то можно спокойно публиковать. В случае внесения изменений нужно заново пройти модерацию.
+          enum:
+            - PUBLISHED
+            - ON_MODERATION
+            - REJECTED
+            - NOT_PUBLISHED
+        title:
+          type: string
+          description: Заголовок объявления
+          example: Дом на берегу моря
+          maxLength: 50
+          minLength: 1
+        address:
+          type: string
+          description: Адрес имущества
+          example: Россия, Воронеж, ул. Новосибирская, д.21
+          maxLength: 255
+          minLength: 1
+        description:
+          type: string
+          description: Описание имущества
+          example: Уютная квартира с видом на водохранилище
+          maxLength: 2000
+          minLength: 1
+        cost:
+          type: integer
+          format: int32
+          description: Стоимость жилья. Если isLongTermRent true, то цена за месяц, иначе за сутки
+          example: 3500
+          maximum: 10000000
+          minimum: 0
+        area:
+          type: number
+          format: float
+          description: Сдаваемая площадь
+          example: 34.2
+          maximum: 10000
+          minimum: 0
+        rooms:
+          type: integer
+          format: int32
+          description: Кол-во комнат
+          example: 4
+          maximum: 100
+        bedrooms:
+          type: integer
+          format: int32
+          description: Количество спален
+          example: 4
+          maximum: 100
+        sleepingPlaces:
+          type: integer
+          format: int32
+          description: Количество спальных мест
+          example: 9
+          maximum: 200
+        bathrooms:
+          type: integer
+          format: int32
+          description: Количество ванных комнат
+          example: 2
+          maximum: 100
+        maxGuests:
+          type: integer
+          format: int32
+          description: Максимум гостей
+          example: 7
+          maximum: 200
+        ownerDTO:
+          $ref: '#/components/schemas/UserDTO'
+          description: Владелец жилья
+        imagesDTOs:
+          type: array
+          description: Фотографии жилья
+          items:
+            $ref: '#/components/schemas/ImageDTO'
+          uniqueItems: true
+        categoriesDTOs:
+          type: array
+          description: Категории жилья
+          items:
+            $ref: '#/components/schemas/CategoryDTO'
+          uniqueItems: true
+        facilitiesDTOs:
+          type: array
+          description: Удобства жилья
+          items:
+            $ref: '#/components/schemas/FacilityDTO'
+          uniqueItems: true
+        longTermRent:
+          type: boolean
+      required:
+        - ownerDTO
+    ReservationDTO:
+      type: object
+      description: DTO бронирования
+      properties:
+        reservationId:
+          type: integer
+          format: int64
+          description: Id бронирования
+          example: 1
+        propertyDTO:
+          $ref: '#/components/schemas/PropertyDTO'
+          description: DTO объявления, с которым связано бронирование
+        renterDTO:
+          $ref: '#/components/schemas/UserDTO'
+          description: DTO арендатора
+        startDate:
+          type: string
+          format: date
+          description: Дата начала проживания
+        endDate:
+          type: string
+          format: date
+          description: Дата окончания проживания
+        costInPeriod:
+          type: integer
+          format: int32
+          description: Стоимость аренды за период. Если долгосрочная аренда, то за месяц, иначе за день.
+        renterCommission:
+          type: integer
+          format: int32
+          description: Сумма комиссии для пользователя
+        ownerCommission:
+          type: integer
+          format: int32
+          description: Сумма комиссии для арендатора
+        totalCost:
+          type: integer
+          format: int32
+          description: Общая стоимость бронирования, с учетом комиссии
+        paymentStatus:
+          type: string
+          description: |
+            Статус бронирования.
+            PAID - Если бронирование оплачено
+            IN_PROCESS - В процессе оплаты
+            NOT_PAID - Не оплачена. В случае если, оплата не прошла и пользователь решил отложить оплату.
+          enum:
+            - PAID
+            - IN_PROCESS
+            - NOT_PAID
+        longTermRent:
+          type: boolean
+      required:
+        - costInPeriod
+        - endDate
+        - ownerCommission
+        - propertyDTO
+        - renterCommission
+        - renterDTO
+        - startDate
+        - totalCost
+    PropertyFilterDTO:
+      type: object
+      properties:
+        sortType:
+          type: string
+          description: Тип сортировки объявлений
+          enum:
+            - MOST_RECENT
+            - MOST_OLD
+            - MOST_EXPENSIVE
+            - MOST_CHEAP
+        categoryIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        facilityIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        address:
+          type: string
+        isLongTermRent:
+          type: boolean
+        minPrice:
+          type: integer
+          format: int32
+          minimum: 0
+        maxPrice:
+          type: integer
+          format: int32
+          minimum: 0
+        guestsAmount:
+          type: integer
+          format: int32
+          minimum: 0
+        bedsAmount:
+          type: integer
+          format: int32
+          minimum: 0
+        bedrooms:
+          type: integer
+          format: int32
+          minimum: 0
+        rooms:
+          type: integer
+          format: int32
+          minimum: 0
+    PropertyCreateEditDTO:
+      type: object
+      description: DTO имущества
+      properties:
+        propertyStatus:
+          type: string
+          description: |
+            Статус жилья.
+            PUBLISHED (опубликовано) - объявление доступно всем пользователям.
+            ON MODERATION (на модерации) - объявление на проверке у модерации. Видно только во вкладке "Сдать жилье" у владельца.
+            REJECTED (отклонено) - объявление не прошло модерацию, его нужно отредактировать, чтобы попробовать еще раз отправить на модерацию.
+            NOT PUBLISHED (не опубликовано) - объявление уже проходило модерацию и было опубликовано, но пользователь скрыл его.
+            Если не будет внесено изменений, то можно спокойно публиковать. В случае внесения изменений нужно заново пройти модерацию.
+          enum:
+            - PUBLISHED
+            - ON_MODERATION
+            - REJECTED
+            - NOT_PUBLISHED
+        title:
+          type: string
+          description: Заголовок объявления
+          example: Дом на берегу моря
+          maxLength: 50
+          minLength: 1
+        address:
+          type: string
+          description: Адрес имущества
+          example: Россия, Воронеж, ул. Новосибирская, д.21
+          maxLength: 255
+          minLength: 1
+        description:
+          type: string
+          description: Описание имущества
+          example: Уютная квартира с видом на водохранилище
+          maxLength: 2000
+          minLength: 1
+        cost:
+          type: integer
+          format: int32
+          description: Стоимость жилья. Если isLongTermRent true, то цена за месяц, иначе за сутки
+          example: 3500
+        area:
+          type: number
+          format: float
+          description: Сдаваемая площадь
+          example: 34.2
+          maximum: 10000
+        rooms:
+          type: integer
+          format: int32
+          description: Кол-во комнат
+          example: 4
+          maximum: 100
+        bedrooms:
+          type: integer
+          format: int32
+          description: Количество спален
+          example: 4
+          maximum: 100
+        sleepingPlaces:
+          type: integer
+          format: int32
+          description: Количество спальных мест
+          example: 9
+          maximum: 200
+        bathrooms:
+          type: integer
+          format: int32
+          description: Количество ванных комнат
+          example: 2
+          maximum: 100
+        maxGuests:
+          type: integer
+          format: int32
+          description: Максимум гостей
+          example: 7
+          maximum: 200
+        ownerId:
+          type: integer
+          format: int64
+          description: Владелец жилья
+          example: 1
+        files:
+          type: array
+          description: Фотографии объявления, файлами
+          items:
+            type: string
+            format: binary
+        categoriesIds:
+          type: array
+          description: Id категорий объявления
+          items:
+            type: integer
+            format: int64
+        facilitiesIds:
+          type: array
+          description: Id удобств объявления
+          items:
+            type: integer
+            format: int64
+        longTermRent:
+          type: boolean
+      required:
+        - ownerId
+    FacilityCreateEditDTO:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Фото удобства
+        name:
+          type: string
+          description: Название удобства
+          example: Душ
+          maxLength: 50
+          minLength: 1
+    CategoryCreateEditDTO:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+          description: Фото категории
+        name:
+          type: string
+          description: Название категории
+          example: Пещера
+          maxLength: 50
+          minLength: 1
+    JwtRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Почта пользователя
+          example: warshard1337@gmail.com
+        code:
+          type: string
+          description: Код, который пользователь получил на почту
+          example: 12345
+    RefreshJwtRequest:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+    JwtResponse:
+      type: object
+      properties:
+        type:
+          type: string
+          example: 'Bearer '
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ3YXJzaGFyZDEzMzdAZ21haWwuY29tIiwiZXhwIjoxNzQ2MzA1ODEzLCJyb2xlIjoiUk9MRV9B211JTiIsIm5hbWUiOiJhZG1pbiJ9.4Rg7E39Y4baT9Eld_pkvH0D6S72eepmyd17Ch44K5Fikw32BSbXsnVq4EOnXJgXsQkmkhZrGDHZh-cSGg7pLPg
+        refreshToken:
+          type: string
+          example: eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ3YXJzaGFyZDEzMzdAZ21haWwuY29tIiwiZXhwIjoxNzQ2MzA1ODEzLCJyb2xlIjoiUk9MRV9Bda1JTiIsIm5hbWUiOiJhZG1pbiJ9.4Rg7E39Y4baT9Eld_pkvH0D6S72eepmydCLCh44K5FikwkdBSbXsnVq4EOnXJgXsQkmkhZrGDHZh-cSGg7pLPg
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Почта пользователя
+          example: warshard1337@gmail.com
+        code:
+          type: string
+          description: Код, который пользователь получил на почту
+          example: 12345
+        name:
+          type: string
+          description: Имя нового пользователя
+        surname:
+          type: string
+          description: Фамилия нового пользователя
+    CodeRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          description: Почта пользователя
+          example: warshard1337@gmail.com
+    CodeResponse:
+      type: object
+      properties:
+        authType:
+          type: string
+          description: Тип аутентификации. AUTH_LOGIN, если пользователь существует, иначе AUTH_REGISTER
+          enum:
+            - AUTH_LOGIN
+            - AUTH_REGISTER
+        userStatus:
+          type: string
+          description: Статус профиля пользователя. STATUS_BLOCKED, STATUS_ACTIVE, STATUS_INACTIVE
+          enum:
+            - STATUS_ACTIVE
+            - STATUS_INACTIVE
+            - STATUS_BLOCKED
+    GenerateDescriptionRequest:
+      type: object
+      properties:
+        systemPrompt:
+          type: string
+        userPrompt:
+          type: string
+    GenerateDescriptionResponse:
+      type: object
+      properties:
+        generatedDescription:
+          type: string
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
