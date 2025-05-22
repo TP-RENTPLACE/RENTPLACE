@@ -10,7 +10,7 @@
 
 ## Rentplace
 [Client (PWA)](http://rentplace.online/) \
-[Admin-panel (Web)](http://admin.rentplace.online/)
+[Admin-panel (Web)](http://admin.rentplace.online/email)
 
 ## Сервисы
 
