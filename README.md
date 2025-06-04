@@ -9,7 +9,10 @@
 * [Беликов Илья](https://github.com/belikov3k) - QA-инженер
 
 ## Rentplace
+#### PWA
 [Client (PWA)](http://rentplace.online/) \
+[APK](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/apk/Rentplace.apk) 
+#### Веб-приложение для администрации сервиса
 [Admin-panel (Web)](http://admin.rentplace.online/email)
 
 ### Данные входа для тестового пользователя
@@ -40,7 +43,8 @@
 Отчет о тестировании [(.pdf)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20%D0%BE%20%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8.pdf) [(.docx)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20%D0%BE%20%D1%82%D0%B5%D1%81%D1%82%D0%B8%D1%80%D0%BE%D0%B2%D0%B0%D0%BD%D0%B8%D0%B8.docx)
 
 ## Отчеты PM
-Отчет PM 2 этап [(.pdf)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20PM%20%D1%8D%D1%82%D0%B0%D0%BF%202.pdf) [(.docx)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20PM%20%D1%8D%D1%82%D0%B0%D0%BF%202.docx) 
+Отчет PM 2 этап [(.pdf)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20PM%20%D1%8D%D1%82%D0%B0%D0%BF%202.pdf) [(.docx)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20PM%20%D1%8D%D1%82%D0%B0%D0%BF%202.docx) \
+Итоговый отчет PM [(.pdf)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20PM%20%D1%8D%D1%82%D0%B0%D0%BF%202.pdf) [(.docx)](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%94%D0%BE%D0%BA%D1%83%D0%BC%D0%B5%D0%BD%D1%82%D0%B0%D1%86%D0%B8%D1%8F/%D0%9E%D1%82%D1%87%D0%B5%D1%82%20PM%20%D1%8D%D1%82%D0%B0%D0%BF%202.docx) 
 
 ## Правила ведения репозиториев 
 [Правила коммитов](https://github.com/TP-RENTPLACE/RENTPLACE/blob/main/%D0%9F%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0%20%D0%BA%D0%BE%D0%BC%D0%BC%D0%B8%D1%82%D0%BE%D0%B2/README.md)
